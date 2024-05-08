@@ -4,79 +4,67 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from datetime import datetime 
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# 数据准备
-requests = [
-('00:02', 16, 14), ('00:06', 11, 2), ('01:51', 1, 17), ('02:32', 1, 12), 
-    ('02:35', 11, 6), ('02:52', 1, 4), ('02:55', 1, 11), ('03:19', 3, 7), 
-    ('04:02', 1, 12), ('04:16', 1, 4), ('04:40', 2, 13), ('04:48', 5, 3), 
-    ('05:31', 14, 15), ('06:00', 2, 1), ('06:54', 8, 4), ('07:26', 4, 18), 
-    ('07:37', 4, 3), ('07:44', 7, 12), ('07:52', 1, 8), ('08:29', 1, 10), 
-    ('08:30', 1, 13), ('10:00', 1, 13), ('10:16', 5, 6), ('10:52', 17, 13), 
-    ('11:00', 1, 13), ('11:04', 18, 9), ('11:17', 11, 1), ('12:00', 1, 13), 
-    ('12:52', 5, 16), ('13:00', 1, 13), ('13:51', 1, 5), ('14:00', 1, 13), 
-    ('14:30', 1, 3), ('15:00', 1, 10), ('15:00', 1, 13), ('15:20', 17, 12), 
-    ('16:00', 1, 10), ('16:52', 5, 17), ('17:00', 1, 10), ('17:50', 10, 2), 
-    ('17:50', 4, 16), ('17:53', 1, 17), ('18:43', 5, 14), ('19:00', 13, 1), 
-    ('19:00', 8, 10), ('20:00', 1, 4), ('20:15', 18, 17), ('20:51', 1, 7), 
-    ('20:53', 16, 7), ('21:00', 1, 2), ('21:37', 17, 12), ('22:02', 1, 10), 
-    ('22:04', 3, 7), ('22:39', 15, 4), ('22:41', 15, 14), ('23:13', 3, 3), 
-    ('23:56', 14, 8),('00:55', 1, 7), ('01:17', 11, 6), ('01:51', 1, 5), 
-    ('02:36', 11, 7), ('02:46', 1, 6), ('05:21', 1, 10), ('06:00', 2, 1), 
-    ('07:05', 14, 9), ('07:17', 1, 7), ('07:40', 8, 4), ('07:50', 1, 11), 
-    ('08:00', 1, 4), ('08:30', 1, 13), ('08:35', 14, 12), ('08:49', 17, 3), 
-    ('08:53', 14, 16), ('10:19', 4, 10), ('11:00', 1, 13), ('11:06', 13, 13), 
-    ('11:34', 1, 16), ('11:40', 5, 14), ('12:49', 1, 17), ('13:00', 1, 13), 
-    ('14:00', 1, 10), ('14:00', 1, 13), ('14:26', 16, 6), ('14:43', 1, 3), ('15:00', 1, 13), 
-    ('15:28', 12, 4), ('16:00', 1, 10), ('16:18', 1, 6), ('16:36', 12, 6), ('16:39', 1, 4), 
-    ('17:13', 10, 3), ('17:49', 15, 3), ('18:15', 1, 15), ('18:49', 4, 2), ('20:00', 1, 4), 
-    ('20:05', 5, 7), ('20:19', 4, 13), ('20:22', 1, 10), ('20:53', 10, 3), ('21:00', 1, 2), 
-    ('21:27', 1, 6), ('21:54', 2, 1), ('22:06', 6, 15), ('22:38', 6, 10), ('22:57', 1, 10)
-]
-
-# 转换为DataFrame
+# Prepare data
+requests = [('00:40', 11, 5), ('00:48', 5, 7), ('03:19', 10, 1), ('04:17', 11, 1), ('06:00', 1, 2), ('07:02', 14, 3), ('07:12', 6, 14), ('07:15', 15, 1), ('07:16', 2, 1), ('07:21', 9, 10), ('07:22', 16, 12), ('07:28', 2, 1), ('07:34', 17, 1), ('07:48', 15, 1), ('07:49', 16, 1), ('07:56', 3, 1), ('08:06', 9, 1), ('08:09', 10, 17), ('08:09', 14, 1), ('08:13', 12, 1), ('08:15', 1, 1), ('08:21', 12, 1), ('08:28', 15, 1), ('08:29', 6, 1), ('08:30', 7, 6), ('08:30', 13, 1), ('08:32', 16, 1), ('08:32', 5, 11), ('08:32', 13, 1), ('08:35', 17, 1), ('09:45', 10, 15), ('09:46', 18, 1), ('09:47', 4, 1), ('10:00', 1, 13), ('10:27', 18, 1), ('11:06', 5, 1), ('11:12', 12, 1), ('11:14', 7, 1), ('11:21', 1, 1), ('11:25', 2, 1), ('11:38', 13, 8), ('11:38', 14, 1), ('11:48', 7, 1), ('12:00', 1, 13), ('12:00', 1, 4), ('12:05', 6, 6), ('12:09', 6, 1), ('12:15', 7, 1), ('12:15', 1, 1), ('12:17', 13, 1), ('12:20', 4, 1), ('12:22', 10, 6), ('12:29', 7, 10), ('12:31', 18, 13), ('12:33', 17, 1), ('12:44', 5, 1), ('12:48', 5, 3), ('12:48', 1, 3), ('12:48', 13, 1), ('12:51', 17, 1), ('12:57', 5, 9), ('13:00', 4, 1), ('13:06', 2, 18), ('13:52', 2, 1), ('13:57', 1, 1), ('14:00', 10, 1), ('14:40', 7, 13), ('14:54', 2, 1), ('15:00', 1, 10), ('15:00', 13, 1), ('16:00', 10, 1), ('17:00', 1, 10), ('17:04', 15, 7), ('17:07', 14, 1), ('17:07', 5, 1), ('17:08', 3, 2), ('17:08', 3, 1), ('17:15', 18, 1), ('17:18', 15, 1), ('17:25', 7, 6), ('17:25', 16, 6), ('17:36', 14, 12), ('17:44', 7, 1), ('17:50', 6, 1), ('17:51', 14, 7), ('17:51', 17, 1), ('17:58', 11, 1), ('18:05', 18, 11), ('18:06', 16, 15), ('18:14', 13, 1), ('18:23', 12, 1), ('18:29', 5, 1), ('18:29', 7, 6), ('18:31', 5, 1), ('18:33', 15, 1), ('18:33', 2, 1), ('18:34', 10, 1), ('18:36', 10, 1), ('18:49', 7, 12), ('18:52', 3, 1), ('19:03', 17, 1), ('19:47', 14, 1), ('19:58', 2, 1), ('20:00', 1, 4), ('20:11', 11, 12), ('22:46', 14, 1), ('23:00', 2, 1), ('23:10', 13, 12), ('23:35', 3, 14), ('23:45', 8, 10)]
+# Convert to DataFrame
 df = pd.DataFrame(requests, columns=['time', 'start_floor', 'end_floor'])
 
-# 添加小时列
+# Convert time to hour of the day
 df['hour'] = df['time'].apply(lambda x: datetime.strptime(x, "%H:%M").hour)
 
-# 计算距离
+# Calculate the distance
 df['distance'] = abs(df['start_floor'] - df['end_floor'])
 
-# 定义特征和目标
+# Define features and target
 X = df[['hour', 'start_floor', 'end_floor', 'distance']]
 y = df['distance']
 
-# 划分训练和测试集
+# Split into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# 建立模型
+# Initialize the model
 model = RandomForestRegressor(n_estimators=100, random_state=42)
 
-# 训练模型
+# Train the model
 model.fit(X_train, y_train)
 
-# 预测和模型评估
+# Predict and evaluate the model
 y_pred = model.predict(X_test)
 mse = mean_squared_error(y_test, y_pred)
 print("Mean Squared Error:", mse)
 
-# 初始化楼层数
-floors = range(1, 18)
 
-# 模拟每小时的最佳初始楼层
+# Simulate the best initial floor for each hour
+floors = range(1, 18)
 best_floors = {}
 for hour in df['hour'].unique():
     group = df[df['hour'] == hour]
     predicted_times = []
     for floor in floors:
-        # 计算每个楼层的预测时间
-        times = [model.predict([[hour, floor, end_floor, abs(floor - end_floor)]])[0] for end_floor in group['end_floor']]
+        prediction_data = pd.DataFrame({
+            'hour': [hour] * len(group),
+            'start_floor': [floor] * len(group),
+            'end_floor': group['end_floor'],
+            'distance': abs(floor - group['end_floor'])
+        })
+        times = model.predict(prediction_data)
         total_time = sum(times)
         predicted_times.append(total_time)
     best_floors[hour] = floors[np.argmin(predicted_times)]
 
-# 输出每小时的最佳初始楼层
-print("Best initial floors per hour:")
-for hour in sorted(best_floors.keys()):
-    print(f"Hour {hour}: Best initial floor is {best_floors[hour]}")
+print(best_floors)
+
+# Plot the best initial floor for each hour
+plt.figure(figsize=(10, 6))
+hours = sorted(best_floors.keys())
+best_floors_list = [best_floors[hour] for hour in hours]
+sns.lineplot(x=hours, y=best_floors_list, marker='o')
+plt.title('Best Initial Floors for Each Hour')
+plt.xlabel('Hour of the Day')
+plt.ylabel('Best Initial Floor')
+plt.xticks(hours)  # Ensure all hours are shown
+plt.grid(True)
+plt.show()
